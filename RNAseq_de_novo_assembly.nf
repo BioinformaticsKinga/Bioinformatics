@@ -1,9 +1,7 @@
-nextflow.enable.dsl=2
-
-// Define input parameters
-params.reads = '/path/to/zygmukin_lupinus_luteus_reads/*.fastq.gz'
-params.outdir = './zygmukin_lupinus_luteus_results'
-params.transcriptome = '/path/to/zygmukin_lupinus_luteus_trinity_output/Trinity.fasta'  // Path to Trinity assembly
+// Define input parameters and Set the appropriate paths for your files
+params.reads = '/path/to/zygmukin_reads/*.fastq.gz'
+params.outdir = './zygmukin_results'
+params.transcriptome = '/path/to/zygmukin_trinity_output/Trinity.fasta'  // Path to Trinity assembly
 
 // Process 1: FastQC (Quality Control)
 process fastqc {
@@ -179,3 +177,4 @@ workflow {
     deseq2_analysis() | limma_voom_analysis()  // Differential expression analysis with limma-voom
     deseq2_analysis() | edger_analysis()  // Differential expression analysis with edgeR
 }
+
