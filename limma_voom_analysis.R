@@ -4,7 +4,7 @@ library(edgeR)
 
 # Load count data
 counts <- read.table("counts.txt", header=TRUE, row.names=1)
-coldata <- data.frame(condition=c("control", "treatment"))  # Replace with actual conditions
+coldata <- data.frame(condition=c("control", "treatment"))  
 
 # Prepare data for voom transformation
 d <- DGEList(counts=counts, group=coldata$condition)
