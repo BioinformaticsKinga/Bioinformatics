@@ -1,7 +1,7 @@
-// Define input parameters and Set the appropriate paths for your files
-params.reads = '/path/to/zygmukin_reads/*.fastq.gz'
-params.outdir = './zygmukin_results'
-params.transcriptome = '/path/to/zygmukin_trinity_output/Trinity.fasta'  // Path to Trinity assembly
+// Define input parameters and set the appropriate paths for your files
+params.reads = 'C:/tools_phd/zygmukin_reads/*.fastq.gz'
+params.outdir = 'C:/tools_phd/zygmukin_results'
+params.transcriptome = 'C:/tools_phd/zygmukin_trinity_output/Trinity.fasta'  // Path to Trinity assembly
 
 // Process 1: FastQC (Quality Control)
 process fastqc {
@@ -10,11 +10,11 @@ process fastqc {
     path reads
 
     output:
-    path 'zygmukin_fastqc_reports'
+    path 'C:/tools_phd/zygmukin_fastqc_reports'
 
     script:
     """
-    fastqc -o zygmukin_fastqc_reports $reads
+    fastqc -o C:/tools_phd/zygmukin_fastqc_reports $reads
     """
 }
 
@@ -25,14 +25,14 @@ process trimmomatic {
     path reads
 
     output:
-    path 'zygmukin_trimmed_reads'
+    path 'C:/tools_phd/zygmukin_trimmed_reads'
 
     script:
     """
     trimmomatic PE -threads 4 ${reads[0]} ${reads[1]} \
-        zygmukin_trimmed_reads_1P.fastq.gz zygmukin_trimmed_reads_1U.fastq.gz \
-        zygmukin_trimmed_reads_2P.fastq.gz zygmukin_trimmed_reads_2U.fastq.gz \
-        ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+        C:/tools_phd/zygmukin_trimmed_reads_1P.fastq.gz C:/tools_phd/zygmukin_trimmed_reads_1U.fastq.gz \
+        C:/tools_phd/zygmukin_trimmed_reads_2P.fastq.gz C:/tools_phd/zygmukin_trimmed_reads_2U.fastq.gz \
+        ILLUMINACLIP:C:/tools_phd/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
     """
 }
 
@@ -43,11 +43,11 @@ process trinity_assembly {
     path reads
 
     output:
-    path 'zygmukin_trinity_output'
+    path 'C:/tools_phd/zygmukin_trinity_output'
 
     script:
     """
-    Trinity --seqType fq --max_memory 50G --left ${reads[0]} --right ${reads[1]} --CPU 4 --output zygmukin_trinity_output
+    Trinity --seqType fq --max_memory 50G --left ${reads[0]} --right ${reads[1]} --CPU 4 --output C:/tools_phd/zygmukin_trinity_output
     """
 }
 
@@ -55,20 +55,20 @@ process trinity_assembly {
 process rsem_analysis {
     container 'biocontainers/rsem:v1.3.1'
     input:
-    path 'zygmukin_trinity_output/Trinity.fasta'   // Transcriptome for RSEM reference
-    path 'zygmukin_trimmed_reads_1P.fastq.gz'       // Trimmed paired-end reads
-    path 'zygmukin_trimmed_reads_2P.fastq.gz'       // Trimmed paired-end reads
+    path 'C:/tools_phd/zygmukin_trinity_output/Trinity.fasta'   // Transcriptome for RSEM reference
+    path 'C:/tools_phd/zygmukin_trimmed_reads_1P.fastq.gz'       // Trimmed paired-end reads
+    path 'C:/tools_phd/zygmukin_trimmed_reads_2P.fastq.gz'       // Trimmed paired-end reads
 
     output:
-    path 'zygmukin_rsem_results'
+    path 'C:/tools_phd/zygmukin_rsem_results'
 
     script:
     """
     rsem-calculate-expression --paired-end \
         --bowtie2 --alignments \
         --output-genome-bam --estimate-rspd \
-        --strand-specific rsem_output \
-        ${reads[0]} ${reads[1]} zygmukin_trinity_output/Trinity.fasta
+        --strand-specific C:/tools_phd/rsem_output \
+        ${reads[0]} ${reads[1]} C:/tools_phd/zygmukin_trinity_output/Trinity.fasta
     """
 }
 
@@ -76,16 +76,16 @@ process rsem_analysis {
 process transdecoder_prediction {
     container 'biocontainers/transdecoder:v5.5.0'
     input:
-    path 'zygmukin_trinity_output/Trinity.fasta'
+    path 'C:/tools_phd/zygmukin_trinity_output/Trinity.fasta'
 
     output:
-    path 'zygmukin_transdecoder_output'
+    path 'C:/tools_phd/zygmukin_transdecoder_output'
 
     script:
     """
-    TransDecoder.LongOrfs -t Trinity.fasta
-    TransDecoder.Predict -t Trinity.fasta
-    mv Trinity.fasta.transdecoder.* zygmukin_transdecoder_output
+    TransDecoder.LongOrfs -t C:/tools_phd/Trinity.fasta
+    TransDecoder.Predict -t C:/tools_phd/Trinity.fasta
+    mv C:/tools_phd/Trinity.fasta.transdecoder.* C:/tools_phd/zygmukin_transdecoder_output
     """
 }
 
@@ -93,15 +93,15 @@ process transdecoder_prediction {
 process trinnotate_annotation {
     container 'trinotate/trinotate:latest'
     input:
-    path 'zygmukin_trinity_output/Trinity.fasta'
-    path 'counts.txt'
+    path 'C:/tools_phd/zygmukin_trinity_output/Trinity.fasta'
+    path 'C:/tools_phd/counts.txt'
 
     output:
-    path 'zygmukin_trinotate_results'
+    path 'C:/tools_phd/zygmukin_trinotate_results'
 
     script:
     """
-    ./trinotate_annotation.sh zygmukin_trinity_output/Trinity.fasta counts.txt zygmukin_trinotate_results
+    ./trinotate_annotation.sh C:/tools_phd/zygmukin_trinity_output/Trinity.fasta C:/tools_phd/counts.txt C:/tools_phd/zygmukin_trinotate_results
     """
 }
 
@@ -109,14 +109,14 @@ process trinnotate_annotation {
 process kobas_annotation {
     container 'agbase/kobas:3.0.3_3'
     input:
-    path 'zygmukin_transdecoder_output/Trinity.fasta.transdecoder.pep'
+    path 'C:/tools_phd/zygmukin_transdecoder_output/Trinity.fasta.transdecoder.pep'
 
     output:
-    path 'zygmukin_kobas_results'
+    path 'C:/tools_phd/zygmukin_kobas_results'
 
     script:
     """
-    sudo docker run --rm -v $(pwd):/work-dir agbase/kobas:3.0.3_3 \
+    sudo docker run --rm -v C:/tools_phd:/work-dir agbase/kobas:3.0.3_3 \
         -a -i /work-dir/zygmukin_transdecoder_output/Trinity.fasta.transdecoder.pep \
         -s ath -t fasta:nuc -o /work-dir/zygmukin_kobas_results
     """
@@ -126,14 +126,14 @@ process kobas_annotation {
 process deseq2_analysis {
     container 'biocontainers/r-ver:v3.6.1'
     input:
-    path 'counts.txt'
+    path 'C:/tools_phd/counts.txt'
 
     output:
-    path 'zygmukin_deseq2_results.csv'
+    path 'C:/tools_phd/zygmukin_deseq2_results.csv'
 
     script:
     """
-    Rscript deseq2_analysis.R counts.txt zygmukin_deseq2_results.csv
+    Rscript C:/tools_phd/deseq2_analysis.R C:/tools_phd/counts.txt C:/tools_phd/zygmukin_deseq2_results.csv
     """
 }
 
@@ -141,14 +141,14 @@ process deseq2_analysis {
 process limma_voom_analysis {
     container 'biocontainers/r-ver:v3.6.1'
     input:
-    path 'counts.txt'
+    path 'C:/tools_phd/counts.txt'
 
     output:
-    path 'zygmukin_limma_voom_results.csv'
+    path 'C:/tools_phd/zygmukin_limma_voom_results.csv'
 
     script:
     """
-    Rscript limma_voom_analysis.R counts.txt zygmukin_limma_voom_results.csv
+    Rscript C:/tools_phd/limma_voom_analysis.R C:/tools_phd/counts.txt C:/tools_phd/zygmukin_limma_voom_results.csv
     """
 }
 
@@ -156,14 +156,14 @@ process limma_voom_analysis {
 process edger_analysis {
     container 'biocontainers/r-ver:v3.6.1'
     input:
-    path 'counts.txt'
+    path 'C:/tools_phd/counts.txt'
 
     output:
-    path 'zygmukin_edger_results.csv'
+    path 'C:/tools_phd/zygmukin_edger_results.csv'
 
     script:
     """
-    Rscript edger_analysis.R counts.txt zygmukin_edger_results.csv
+    Rscript C:/tools_phd/edger_analysis.R C:/tools_phd/counts.txt C:/tools_phd/zygmukin_edger_results.csv
     """
 }
 
@@ -177,4 +177,3 @@ workflow {
     deseq2_analysis() | limma_voom_analysis()  // Differential expression analysis with limma-voom
     deseq2_analysis() | edger_analysis()  // Differential expression analysis with edgeR
 }
-
