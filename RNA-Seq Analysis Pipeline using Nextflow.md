@@ -1,5 +1,6 @@
 RNA-Seq Analysis Pipeline using Nextflow
 
+
 Overview
 
 This repository contains a Nextflow pipeline for RNA-Seq analysis, including quality control, read trimming, transcriptome assembly, expression quantification, and differential expression analysis.
